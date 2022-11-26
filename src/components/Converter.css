@@ -1,0 +1,12 @@
+.converter {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.converter-item-text {
+  color: #fff; 
+  font-size: small;
+  text-transform:lowercase;
+  font-weight:lighter
+}

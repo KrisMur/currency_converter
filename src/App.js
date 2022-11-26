@@ -1,27 +1,26 @@
 import React, {useState, useEffect } from 'react';
-import './App.css';
 import Header from './components/Header';
-
+import Converter from './components/Converter';
+import '../src/App.css'
 
 
 function App() {
 
-  const [appState, setAppState] = useState({ loading: false })  /*текучий стан */
+  const [appState, setAppState] = useState({ loading: false }) /*текучий стан */
 
   const [exchangeRateUSD, setExengeRateUSD] = useState(); /*текучий курс валют USD*/
   const [exchangeRateEUR, setExengeRateEUR] = useState(); /*текучий курс валют EUR*/
 
-  const [currency1, setCurrency1State] = useState('UAH');  /*вибрана валюта */
-  const [currency2, setCurrency2State] = useState('USD');
+  const [selectedCurrency1, setSelectedCurrency1State] = useState('USD'); /*вибрана валюта 1*/
+  const [selectedCurrency2, setSelectedCurrency2State] = useState('USD'); /*вибрана валюта 2*/
 
-  const [inputValueToConvert1, setInputValueToConvert1] = useState(); /*вибрана кількіть валюти для конвертації*/
-  const [inputValueToConvert2, setInputValueToConvert2] = useState();
+  const [inputAmount1, setinputAmount1] = useState(0); /*вибрана кількіть валюти для конвертації 1*/
+  const [inputAmount2, setInputAmount2] = useState(0); /*вибрана кількіть валюти для конвертації 2*/
 
-  const props = [ exchangeRateUSD, exchangeRateEUR]
-
+  /*Отримання дійсного співвідношення курсів валют з API*/
   useEffect(() => {
     setAppState({ loading: true })
-    const user = `https://api.currencyapi.com/v3/latest?apikey=SBb83G1UVBv8Fr2ng27DrmSegTFdpilXqGZOAuNC&currencies=EUR%2CUSD&base_currency=UAH`;
+    const user = process.env.REACT_APP_CURRENCU_API;
     fetch(user)
       .then((res) => res.json())
       .then((result) => {
@@ -32,25 +31,25 @@ function App() {
   }, [setAppState]);
 
 
-
-  function CoverterOnChangeValue (currencyActive, currencyRresult, value) {
+  /*Функція розрахунку відношення курсів валют*/
+  function CoverterOnChangeValue (convertibleСurrency, fixedСurrency, value) {
     let result
 
-    switch(currencyActive) {
+    switch(convertibleСurrency) {
       case 'UAH':
-        currencyRresult === 'USD' 
+        fixedСurrency === 'USD' 
           ? result = (value * exchangeRateUSD ) 
           : result = (value * exchangeRateEUR )
       break
 
       case 'USD':
-        currencyRresult === 'UAH' 
+        fixedСurrency === 'UAH' 
           ? result = (value * (1 / exchangeRateUSD)) 
           : result = (value * (exchangeRateEUR / exchangeRateUSD))
       break
     
     case 'EUR' :
-      currencyRresult === 'UAH' 
+      fixedСurrency === 'UAH' 
         ? result = (value * (1 / exchangeRateEUR)) 
         : result = (value * (exchangeRateUSD / exchangeRateEUR))
       break
@@ -62,101 +61,78 @@ function App() {
     return result
   };
 
+  /*Дії при зміні значення в полі вводу 1*/
   const onChangeHandlerInput1 = event => {
     let inputValue = event.target.value
     if (inputValue < 0) {
       inputValue = 0
     }
-    setInputValueToConvert1(inputValue);
+    setinputAmount1(inputValue);
 
-     if (currency1 === currency2 ) {
-      setInputValueToConvert2(inputValue)
-     } else {
-      setInputValueToConvert2(CoverterOnChangeValue(currency1, currency2, inputValue))
-     }
+    if (selectedCurrency1 === selectedCurrency2 ) {
+      setInputAmount2(inputValue)
+    } else {
+      setInputAmount2(CoverterOnChangeValue(selectedCurrency1, selectedCurrency2, inputValue))
+    }
   };
 
+    /*Дії при зміні значення в полі вводу 2*/
   const onChangeHandlerInput2 = event => {
     let inputValue = event.target.value
     if (inputValue < 0) {
       inputValue = 0
     }
-    setInputValueToConvert2(inputValue);
+    setInputAmount2(inputValue);
 
-    if (currency1 === currency2 ) {
-      setInputValueToConvert1(inputValue)
+    if (selectedCurrency1 === selectedCurrency2 ) {
+      setinputAmount1(inputValue)
     } else {
-      setInputValueToConvert1((CoverterOnChangeValue(currency2, currency1, inputValue)))
+      setinputAmount1((CoverterOnChangeValue(selectedCurrency2, selectedCurrency1, inputValue)))
     }
   };
 
-
+    /*Дії при зміні значення в селекторі валют 1*/
   const onChangeHandlerSelector1 = event => {
     const inputCurrency = event.target.value;
-    setCurrency1State(inputCurrency)
+    setSelectedCurrency1State(inputCurrency)
 
-    if (inputCurrency === currency2 ) {
-      setInputValueToConvert2(inputValueToConvert1)
+    if (inputCurrency === selectedCurrency2 ) {
+      setInputAmount2(1)
     } else {
-      setInputValueToConvert2(CoverterOnChangeValue(inputCurrency, currency2, inputValueToConvert1 ))
+      setInputAmount2(CoverterOnChangeValue(inputCurrency, selectedCurrency2, inputAmount1 ))
     }
-    
   };
 
+    /*Дії при зміні значення в селекторі валют 2*/
   const onChangeHandlerSelector2 = event => {
     const inputCurrency = event.target.value;
-    setCurrency2State(inputCurrency)
+    setSelectedCurrency2State(inputCurrency)
 
-    if (currency1 === inputCurrency) {
-      setInputValueToConvert2(inputValueToConvert1)
+    if (selectedCurrency1 === inputCurrency) {
+      setinputAmount1(1)
     } else {
-      setInputValueToConvert1(CoverterOnChangeValue(currency1, inputCurrency, inputValueToConvert2))
+      setinputAmount1(CoverterOnChangeValue( inputCurrency, selectedCurrency1, inputAmount2))
     }
-    
   };
 
+    /*Дані для передачі в компоненти*/
+  const props = [ exchangeRateUSD, exchangeRateEUR]
+  const propsFor1Converter = [onChangeHandlerInput1, inputAmount1, onChangeHandlerSelector1]
+  const propsFor2Converter = [onChangeHandlerInput2, inputAmount2, onChangeHandlerSelector2]
 
 
   return (
-    <div className="App">
-
+    <div className="app">
       <Header props = { props }/>
+      <div className='converter-wrapper'>
+        <Converter propsForConverter = {propsFor1Converter}/>
+        <Converter propsForConverter = {propsFor2Converter}/>
+      </div>
 
 
-       <input type="number" min = '0' onChange={onChangeHandlerInput1} value={inputValueToConvert1}></input>
-
-       <div>Currency code of the currency you would like to convert</div>
-
-        <select 
-        name="selected currency1" 
-        required="required" 
-        onChange={onChangeHandlerSelector1}>
-
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option selected value="UAH">UAH</option>
-
-        </select> 
-
-         <div></div>
-
-        <input type="number" min='0' onChange={onChangeHandlerInput2} value={inputValueToConvert2}></input>
-        <div>Currency code of the currency you would like to convert</div>
-
-        <select
-          name="selected currency2" 
-          required="required"
-          onChange={onChangeHandlerSelector2}>
-
-          <option selected value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="UAH">UAH</option>
-
-        </select>
-
-       <div>Result</div>
     </div>
   );
 }
-
   export default App;
+
+
