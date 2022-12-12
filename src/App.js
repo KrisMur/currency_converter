@@ -36,20 +36,20 @@ function App() {
     let result
 
     switch(convertibleСurrency) {
-      case 'UAH':
+      case 'PLN':
         fixedСurrency === 'USD' 
           ? result = (value * exchangeRateUSD ) 
           : result = (value * exchangeRateEUR )
       break
 
       case 'USD':
-        fixedСurrency === 'UAH' 
+        fixedСurrency === 'PLN' 
           ? result = (value * (1 / exchangeRateUSD)) 
           : result = (value * (exchangeRateEUR / exchangeRateUSD))
       break
     
     case 'EUR' :
-      fixedСurrency === 'UAH' 
+      fixedСurrency === 'PLN' 
         ? result = (value * (1 / exchangeRateEUR)) 
         : result = (value * (exchangeRateUSD / exchangeRateEUR))
       break

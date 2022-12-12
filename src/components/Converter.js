@@ -19,7 +19,7 @@ function Converter ({propsForConverter}) {
         onChange={propsForConverter[2]}>
         <option value="USD">USD</option>
         <option value="EUR">EUR</option>
-        <option value="UAH">UAH</option>
+        <option value="PLN">PLN</option>
       </select>
     </div>
   );

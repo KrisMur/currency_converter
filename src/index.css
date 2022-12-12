@@ -5,7 +5,7 @@
   font-family: 'Nunito', sans-serif;
 }
 
- html {
+ body {
   background-image: url(../public/vectorstock_26319334.png);
   background-repeat: no-repeat;
   background-position: center center;
@@ -15,9 +15,10 @@
   -o-background-size: cover;
   background-size: cover;
 }
+ 
 
 select {
-  width: 300px;
+  width: 320px;
   padding: 12px;
   border: 0 ;
   border-radius: 5px;
